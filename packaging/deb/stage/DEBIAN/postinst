@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+# post-install script for examshield-agent
+
+# Create state dir if not exists
+install -d -m 0700 -o root -g root /var/lib/examshieldedu || true
+
+# Reload systemd, enable and start service
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl daemon-reload || true
+    systemctl enable examshield-agent.service || true
+    systemctl restart examshield-agent.service || true
+fi
+
+exit 0

@@ -1,0 +1,10 @@
+Package: examshield-agent
+Version: 0.1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: ExamShield EDU Team <support@example.com>
+Description: ExamShield EDU Agent for Linux (PoC)
+ A lightweight agent that enrolls with the ExamShield server,
+ sends heartbeats, and enforces exam policies.
+Depends: systemd (>= 245)

@@ -1,0 +1,23 @@
+[Unit]
+Description=ExamShield EDU Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/local/bin/examshield-agent
+Restart=always
+RestartSec=3
+Environment=EXAMSHIELD_SERVER=http://127.0.0.1:8080
+StateDirectory=examshieldedu
+
+# Hardening (basic)
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

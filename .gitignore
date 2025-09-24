@@ -1,0 +1,25 @@
+# Build artifacts
+**/bin/
+**/dist/
+**/build/
+**/.cache/
+
+# Go
+**/vendor/
+**/*.exe
+**/*.dll
+**/*.so
+**/*.dylib
+**/*.test
+
+# Node
+node_modules/
+.next/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

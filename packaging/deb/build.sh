@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Build .deb for ExamShield EDU agent (Linux amd64)
+# Requirements: golang, dpkg-deb, bash
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)"
+PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STAGE_DIR="${PKG_DIR}/stage"
+VERSION="0.1.0"
+ARCH="amd64"
+PKG_NAME="examshield-agent_${VERSION}_${ARCH}.deb"
+
+# Locate Go (works on Linux, WSL, and Git Bash on Windows)
+GO_BIN="$(command -v go || true)"
+if [[ -z "${GO_BIN}" ]]; then
+  # Try common Windows paths under Git Bash/MSYS
+  if [[ -x "/c/Program Files/Go/bin/go.exe" ]]; then
+    GO_BIN="/c/Program Files/Go/bin/go.exe"
+  elif [[ -x "/c/Users/${USERNAME}/AppData/Local/Programs/Go/bin/go.exe" ]]; then
+    GO_BIN="/c/Users/${USERNAME}/AppData/Local/Programs/Go/bin/go.exe"
+  fi
+fi
+if [[ -z "${GO_BIN}" ]]; then
+  echo "Error: Go toolchain not found on PATH. Please install Go or add it to PATH." >&2
+  exit 1
+fi
+
+rm -rf "${STAGE_DIR}"
+mkdir -p "${STAGE_DIR}"
+
+# Copy DEBIAN control files
+mkdir -p "${STAGE_DIR}/DEBIAN"
+cp -r "${PKG_DIR}/DEBIAN/"* "${STAGE_DIR}/DEBIAN/"
+
+# Copy systemd service file
+mkdir -p "${STAGE_DIR}/lib/systemd/system"
+cp "${PKG_DIR}/lib/systemd/system/examshield-agent.service" "${STAGE_DIR}/lib/systemd/system/"
+
+# Build Linux binary
+BIN_DIR="${STAGE_DIR}/usr/local/bin"
+mkdir -p "${BIN_DIR}"
+(
+  cd "${ROOT_DIR}/agent/cmd/agent"
+  GOOS=linux GOARCH=amd64 CGO_ENABLED=0 "${GO_BIN}" build -o "${BIN_DIR}/examshield-agent" .
+)
+chmod 0755 "${BIN_DIR}/examshield-agent"
+
+# Ensure maintainer scripts are executable
+chmod 0755 "${STAGE_DIR}/DEBIAN/postinst"
+
+# Build the .deb
+(
+  cd "${PKG_DIR}"
+  dpkg-deb --build stage "${PKG_NAME}"
+)
+
+echo "Built ${PKG_DIR}/${PKG_NAME}"
