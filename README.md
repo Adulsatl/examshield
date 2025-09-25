@@ -1,4 +1,4 @@
-# ExamShield EDU – PoC Monorepo
+# ExamShield EDU 
 
 This PoC includes a minimal backend API (Go) and a Windows-capable agent (Go). The agent enrolls with the server and sends periodic heartbeats, fetching a static policy for now.
 
